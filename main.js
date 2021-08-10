@@ -20,7 +20,7 @@ var startApplication = function startApplication() {
 	//mainWindow.loadUrl('http://localhost:3000');
 
 	// Open the DevTools.
-	mainWindow.openDevTools();
+	// mainWindow.openDevTools();
 
 	ipc.on('open-dir-dialog', function (event, arg) {
 		dialog.showOpenDialog(mainWindow, {
