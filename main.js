@@ -26,27 +26,33 @@ var startApplication = function startApplication() {
 		dialog.showOpenDialog(mainWindow, {
 			properties: ['openDirectory', 'multiSelections'],
 		})
-		.then(function ({ filePaths }) {
-			event.reply('open-dir-dialog-reply', filePaths);
-		})
+			.then(function ({ filePaths }) {
+				event.reply('open-dir-dialog-reply', filePaths);
+			})
 	});
 
 	ipc.on('open-finder', function (event, arg) {
 		shell.showItemInFolder(arg.path)
 	});
 
-	ipc.on('create-excle', function (event, files) {
-		mergeExcel(files);
+	ipc.on('create-excle', function (event, files, path) {
+		mergeExcel(files, path)
+			.then(function () {
+				event.sender.send('merge-reply', true);
+			})
+			.catch(function () {
+				event.sender.send('merge-reply', false);
+			});
 	})
 
 	ipc.on('directory-walk', function (event, path) {
 		directoryWalk(path)
-		.then(function (entries) {
-			event.reply('directory-walk-reply', entries)
-		})
-		.catch(function (err) {
-			event.reply('directory-walk-reply', null, err)
-		})
+			.then(function (entries) {
+				event.reply('directory-walk-reply', entries)
+			})
+			.catch(function (err) {
+				event.reply('directory-walk-reply', null, err)
+			})
 	})
 };
 

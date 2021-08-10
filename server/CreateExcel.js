@@ -7,10 +7,10 @@ require('core-js/modules/es.promise');
 // require('core-js/modules/es.symbol.async-iterator');
 require('regenerator-runtime/runtime');
 
+var { columns, positions } = require('../constants/index');
 var ExcelJS = require('exceljs/dist/es5/exceljs.bare');
 
-
-exports.mergeExcel = function (files) {
+function createExcelWorkbook() {
 	const workbook = new ExcelJS.Workbook();
 	const date = new Date();
 	workbook.creator = 'excel-file-merger';
@@ -18,18 +18,73 @@ exports.mergeExcel = function (files) {
 	workbook.created = date;
 	workbook.modified = date;
 	workbook.lastPrinted = date;
+	return workbook;
+};
 
+function addSheetToWorkbook(workbook, sheetName = 'Sheet1') {
+	return workbook.addWorksheet(sheetName);
+}
 
-	const sheet = workbook.addWorksheet('sheet merge');
+function writeExcelToDisk(workbook, name) {
+	workbook.xlsx.writeFile(name);
+}
 
+function getExcelData(path) {
+	return new Promise(function (resolve, reject) {
+		createExcelWorkbook()
+			.xlsx
+			.readFile(path)
+			.then(function (workbook) {
+				const worksheet = workbook.getWorksheet('data');
+				resolve(
+					positions.map(function ([row, col]) {
+						return worksheet
+							.getRow(row)
+							.getCell(col)
+							.value
+							.result;
+					})
+				)
+			})
+	})
+}
+
+exports.mergeExcel = function (files, directoryPath) {
+	const workbook = createExcelWorkbook();
+	const sheet = addSheetToWorkbook(workbook);
 	sheet.columns = [
-		{ header: 'Id', key: 'id', width: 10 },
-		{ header: 'Name', key: 'name', width: 32 },
-		{ header: 'D.O.B.', key: 'dob', width: 15, }
+		{
+			header: 'path',
+			key: 'path',
+			width: 35,
+		},
+		...columns.map(function (column) {
+			return {
+				header: column,
+				key: column,
+				width: 18,
+			}
+		})
 	];
 
-	sheet.addRow({ id: 1, name: 'John Doe', dob: new Date(1970, 1, 1) });
-	sheet.addRow({ id: 2, name: 'Jane Doe', dob: new Date(1965, 1, 7) });
+	return Promise
+		.all(files.map(file => getExcelData(file.path)))
+		.then(function (filesData) {
+			filesData.forEach(function (fileData, index) {
+				const row = {
+					path: files[index].path,
+				};
+				columns.forEach(function (column, index) {
+					row[column] = fileData[index];
+				})
+				sheet.addRow(row);
+			});
+			const pathArray = directoryPath.split('/');
+			const name = pathArray.pop();
+			writeExcelToDisk(
+				workbook,
+				pathArray.join('/') + '/' + name + '_' + Date.now() + '.xlsx',
+			)
+		});
 
-	workbook.xlsx.writeFile('filename.xlsx');
 };

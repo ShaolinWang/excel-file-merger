@@ -8,6 +8,14 @@ class DirectoryBar extends Component {
 			path: this.props.path || ''
 		};
 
+		ipcRenderer.on('merge-reply', (event, success) => {
+			if (success) {
+				alert('thank god! success!');
+			} else {
+				alert('sorry~ failed~');
+			}
+		});
+
 		ipcRenderer.on('open-dir-dialog-reply', (event, dirPath) => {
 			if (dirPath) {
 				props.onSetPath(dirPath[0]);
@@ -32,7 +40,7 @@ class DirectoryBar extends Component {
 			alert('no file in the folder');
 			return;
 		}
-		ipcRenderer.send('create-excle', this.props.files);
+		ipcRenderer.send('create-excle', this.props.files, this.state.path);
 	}
 
 	handleEnter(e) {
