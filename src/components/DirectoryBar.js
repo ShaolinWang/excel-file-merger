@@ -1,75 +1,89 @@
 import React, { PropTypes, Component } from 'react';
-import {ipcRenderer} from  'electron';
-
-
+const { ipcRenderer } = require('electron');
 class DirectoryBar extends Component {
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      path: this.props.path || ''
-    };
+	constructor(props, context) {
+		super(props, context);
+		this.state = {
+			path: this.props.path || ''
+		};
 
-    ipcRenderer.on('open-dir-dialog-reply', (event, dirPath) => {
-      if(dirPath){
-        props.onSetPath(dirPath[0]);
-      }
-    });
-  }
+		ipcRenderer.on('open-dir-dialog-reply', (event, dirPath) => {
+			if (dirPath) {
+				props.onSetPath(dirPath[0]);
+			}
+		});
+	}
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({path: nextProps.path});
-  }
+	componentWillReceiveProps(nextProps) {
+		this.setState({ path: nextProps.path });
+	}
 
-  handleClick(e) {
-    this.props.onSetPath(this.state.path);
-  }
+	handleClick(e) {
+		this.props.onSetPath(this.state.path);
+	}
 
-  handleEnter(e) {
-    if(e.which === 13){
-      this.handleClick();
-    }
-  }
+	handleMerge() {
+		if (!this.state.path) {
+			alert('please choose a folder first');
+			return;
+		}
+		if (this.props.files.length === 0) {
+			alert('no file in the folder');
+			return;
+		}
+		ipcRenderer.send('create-excle', this.props.files);
+	}
 
-  handleChange(e) {
-    this.setState({path: e.target.value});
-  }
+	handleEnter(e) {
+		if (e.which === 13) {
+			this.handleClick();
+		}
+	}
 
-  handleDialog(){
-    ipcRenderer.send('open-dir-dialog');
-  }
+	handleChange(e) {
+		this.setState({ path: e.target.value });
+	}
 
-  handleBack(){
-    this.props.onBack();
-  }
+	handleDialog() {
+		ipcRenderer.send('open-dir-dialog');
+	}
 
-  render() {
-    const { onSetPath, loading, error } = this.props;
-    return (
-      <div className="DirectoryBar">
-        <button className="BackButton" onClick={this.handleBack.bind(this)}><i className="fa fa-arrow-left"></i></button>
-        <button className="DialogButton" onClick={this.handleDialog}><i className="fa fa-search"></i></button>
-        <input
-          type="text"
-          className={error ? 'hasError' : null}
-          value={this.state.path}
-          onChange={this.handleChange.bind(this)}
-          onKeyDown={this.handleEnter.bind(this)}
-          placeholder="Select a directory"/>
-        <button className="OkButton" onClick={this.handleClick.bind(this)}>
-          {loading ? (<i className="fa fa-cog fa-spin"></i>) : (<i className="fa fa-arrow-right"></i>)}
-        </button>
-      </div>
-    );
-  }
+	handleBack() {
+		this.props.onBack();
+	}
+
+	render() {
+		const { onSetPath, loading, error } = this.props;
+		return (
+			<div className="DirectoryBar">
+				<button className="BackButton" onClick={this.handleBack.bind(this)}><i className="fa fa-arrow-left"></i></button>
+				<button className="DialogButton" onClick={this.handleDialog.bind(this)}><i className="fa fa-search"></i></button>
+				<input
+					type="text"
+					className={error ? 'hasError' : null}
+					value={this.state.path}
+					onChange={this.handleChange.bind(this)}
+					onKeyDown={this.handleEnter.bind(this)}
+					placeholder="Select a directory" />
+				<button className="OkButton" onClick={this.handleClick.bind(this)}>
+					{loading ? (<i className="fa fa-cog fa-spin"></i>) : (<i className="fa fa-arrow-right"></i>)}
+				</button>
+				<button className="MergeButton" onClick={this.handleMerge.bind(this)}>
+					{loading ? (<i className="fa fa-cog fa-spin"></i>) : "Merge"}
+				</button>
+			</div>
+		);
+	}
 }
 
 DirectoryBar.propTypes = {
-  path: PropTypes.string,
-  onSetPath: PropTypes.func.isRequired,
-  onBack: PropTypes.func.isRequired,
-  loading: PropTypes.bool.isRequired,
-  error: PropTypes.bool.isRequired
+	path: PropTypes.string,
+	onSetPath: PropTypes.func.isRequired,
+	onBack: PropTypes.func.isRequired,
+	loading: PropTypes.bool.isRequired,
+	error: PropTypes.bool.isRequired,
+	files: PropTypes.array.isRequired,
 };
 
 

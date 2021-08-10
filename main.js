@@ -1,48 +1,72 @@
 'use strict';
 
-const electron = require('electron');
-const {app, BrowserWindow, ipcMain: ipc, dialog, shell}  = electron;
+const { app, BrowserWindow, ipcMain: ipc, dialog, shell } = require('electron');
+const mergeExcel = require('./server/CreateExcel').mergeExcel;
+const directoryWalk = require('./server/DirectoryWalker').directoryWalk;
 
-let mainWindow
+var startApplication = function startApplication() {
+	// Create the browser window.
+	const mainWindow = new BrowserWindow({
+		width: 800,
+		height: 600,
+		webPreferences: {
+			nodeIntegration: true,
+			contextIsolation: false,
+		}
+	});
 
-// Quit when all windows are closed.
-app.on('window-all-closed', function() {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform != 'darwin') {
-    app.quit();
-  }
-});
+	// and load the index.html of the app.
+	mainWindow.loadFile('index.html');
+	//mainWindow.loadUrl('http://localhost:3000');
 
-var startApplication = function startApplication(){
-  // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600});
+	// Open the DevTools.
+	mainWindow.openDevTools();
 
-  // and load the index.html of the app.
-  mainWindow.loadURL('file://' + __dirname + '/index.html');
-  //mainWindow.loadUrl('http://localhost:3000');
+	ipc.on('open-dir-dialog', function (event, arg) {
+		dialog.showOpenDialog(mainWindow, {
+			properties: ['openDirectory', 'multiSelections'],
+		})
+		.then(function ({ filePaths }) {
+			event.reply('open-dir-dialog-reply', filePaths);
+		})
+	});
 
-  // Open the DevTools.
-  //mainWindow.openDevTools();
+	ipc.on('open-finder', function (event, arg) {
+		shell.showItemInFolder(arg.path)
+	});
 
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null;
-  });
+	ipc.on('create-excle', function (event, files) {
+		mergeExcel(files);
+	})
 
-  ipc.on('open-dir-dialog', function(event, arg) {
-    var dirPath = dialog.showOpenDialog(mainWindow, { properties: [ 'openDirectory', 'multiSelections' ]})
-    event.sender.send('open-dir-dialog-reply', dirPath);
-  });
-
-  ipc.on('open-finder', function(event, arg) {
-    shell.showItemInFolder(arg.path)
-  });
+	ipc.on('directory-walk', function (event, path) {
+		directoryWalk(path)
+		.then(function (entries) {
+			event.reply('directory-walk-reply', entries)
+		})
+		.catch(function (err) {
+			event.reply('directory-walk-reply', null, err)
+		})
+	})
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-app.on('ready', startApplication);
+app.whenReady().then(() => {
+	startApplication()
+
+	app.on('activate', function () {
+		// On macOS it's common to re-create a window in the app when the
+		// dock icon is clicked and there are no other windows open.
+		if (BrowserWindow.getAllWindows().length === 0) startApplication()
+	})
+})
+
+// Quit when all windows are closed.
+app.on('window-all-closed', function () {
+	// On OS X it is common for applications and their menu bar
+	// to stay active until the user quits explicitly with Cmd + Q
+	if (process.platform != 'darwin') {
+		app.quit();
+	}
+});

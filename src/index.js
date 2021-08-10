@@ -11,8 +11,8 @@ import './styles/main.scss';
 const store = configureStore();
 
 React.render(
-  <Provider store={store}>
-    {() => <App />}
-  </Provider>,
-  document.getElementById('root')
+	<Provider store={store}>
+		{() => <App />}
+	</Provider>,
+	document.getElementById('root')
 );

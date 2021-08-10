@@ -1,90 +1,98 @@
 $backButtonWidth: 40px;
 
 .DirectoryBar {
+	position: relative;
+	width: 100%;
+	margin-bottom: 20px;
 
-  position: relative;
-  width: 100%;
-  margin-bottom: 20px;
+	input,
+	button {
+		height: $directory-bar-height;
+		font-size: 16px;
+		border: none;
+		&:focus {
+			outline: none;
+		}
+	}
 
-  input, button {
-    height: $directory-bar-height;
-    font-size: 16px;
-    border: none;
-    &:focus {
-      outline: none;
-    }
-  }
+	input {
+		box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+		color: #777;
+		width: 100%;
+		padding: 0 90px 0 96px;
+		transition: all 0.4s ease-in-out;
+		&:focus {
+			outline: none;
+			box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+		}
 
-  input {
-    box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
-    color: #777;
-    width: 100%;
-    padding: 0 90px 0 96px;
-    transition: all 0.4s ease-in-out;
-    &:focus {
-      outline: none;
-      box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-    }
+		&.hasError {
+			color: darken(red, 5);
+		}
+	}
 
-    &.hasError {
-      color: darken(red, 5);
-    }
-  }
+	button {
+		position: absolute;
+		top: 0;
+	}
 
-  button {
-    position: absolute;
-    top: 0;
-  }
+	.BackButton,
+	.DialogButton {
+		height: $directory-bar-height - 20px;
+		padding: 0 10px;
+		margin: 10px 0;
+		color: #777;
+		border-right: 1px solid rgba(0, 0, 0, 0.05);
+		background-color: transparent;
+		text-align: center;
 
-  .BackButton, .DialogButton {
-    height: $directory-bar-height - 20px;
-    padding: 0 10px;
-    margin: 10px 0;
-    color: #777;
-    border-right: 1px solid rgba(0,0,0,0.05);
-    background-color: transparent;
-    text-align: center;
+		&:hover {
+			color: lighten($primaryColor, 20);
+		}
+	}
 
-    &:hover {
-      color: lighten($primaryColor, 20);
-    }
-  }
+	.BackButton {
+		left: 0;
+		padding: 0 14px;
+	}
 
-  .BackButton {
-    left: 0;
-    padding: 0 14px;
-  }
+	.DialogButton {
+		left: $backButtonWidth + 6px;
+		padding-right: 12px;
+	}
 
-  .DialogButton {
-    left: $backButtonWidth + 6px;
-    padding-right: 12px;
-  }
+	.OkButton, .MergeButton {
+		background-color: lighten($primaryColor, 6);
+		color: white;
+		width: $button-width;
 
-  .OkButton {
-    right: 0;
-    background-color: lighten($primaryColor, 6);
-    color: white;
-    width: $button-width;
+		&:hover {
+			background-color: lighten($primaryColor, 12);
+		}
 
-    &:hover {
-      background-color: lighten($primaryColor, 12);
-    }
+		&:active {
+			background-color: lighten($primaryColor, 4);
+		}
 
-    &:active {
-      background-color: lighten($primaryColor, 4);
-    }
+		&:focus {
+			outline: none;
+		}
 
-    &:focus {
-      outline: none;
-    }
+		.fa-cog {
+			font-size: 120%;
+		}
 
-    .fa-cog {
-      font-size: 120%;
-    }
+		.fa-arrow-right {
+			position: relative;
+			top: -1px;
+		}
+	}
 
-    .fa-arrow-right {
-      position: relative;
-      top: -1px;
-    }
-  }
+	.MergeButton {
+		right: 0;
+	}
+
+	.OkButton {
+		right: 75px;
+	}
 }

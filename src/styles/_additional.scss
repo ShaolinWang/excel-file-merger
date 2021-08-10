@@ -1,52 +1,34 @@
 .Additional {
+	text-align: left;
+	color: $gray-font-color;
 
-  text-align: left;
-  color: $gray-font-color;
+	.FileCount,
+	.ShowingFileCount {
+		text-align: right;
+		float: right;
 
-  .SliderInput {
-    input {
-      position: relative;
-      top: -2px;
-      margin-left: 4px;
-      margin-right: 4px;
-    }
-    .SliderValue {
-      display: inline-block;
-      min-width: 48px;
-    }
+		span {
+			cursor: default;
+		}
+	}
 
-    span {
-      cursor: default;
-    }
-  }
+	.FileCount {
+		padding-right: 10px;
+	}
 
-  .FileCount, .ShowingFileCount {
-    text-align: right;
-    float:right;
+	.ShowingFileCount {
+		color: lighten($gray-font-color, 20);
+	}
 
-    span {
-      cursor: default;
-    }
+	.ErrorMessage {
+		float: right;
+		color: darken(red, 5);
+	}
 
-  }
-
-  .FileCount {
-    padding-right: 10px;
-  }
-
-  .ShowingFileCount {
-    color: lighten($gray-font-color, 20);
-  }
-
-  .ErrorMessage {
-    float:right;
-    color: darken(red, 5);
-  }
-
-
-  @media (max-width: 550px) {
-    .FileCount, .ShowingFileCount {
-      display: none;
-    }
-  }
+	@media (max-width: 550px) {
+		.FileCount,
+		.ShowingFileCount {
+			display: none;
+		}
+	}
 }
